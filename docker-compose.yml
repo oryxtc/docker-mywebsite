@@ -1,0 +1,60 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.10.3
+        container_name: website-nginx
+        restart: always
+        ports:
+        - 80:80
+        - 443:443
+        links:
+        - php
+        volumes:
+        - /d/www/docker/mywebsite/nginx:/etc/nginx/conf.d  #nginx配置文件目录
+        - oryxtc-volume:/home
+    php:
+        build:
+            context: ./php
+        image: oryxtc/website-php
+        container_name: website-php
+        restart: always
+        links:
+        - mysql:mysql_server
+        - redis:redis_server
+        volumes:
+        - oryxtc-volume:/home
+    mysql:
+        image: mysql:8.0
+        container_name: website-mysql
+        restart: always
+        ports:
+        - 3306:3306
+        environment:
+        - MYSQL_USER=oryxtc
+        - MYSQL_PASSWORD=123456
+        - MYSQL_ROOT_PASSWORD=needtofile
+    redis:
+        image: redis:3.0.7
+        container_name: website-redis
+        restart: always
+        ports:
+        - 6379:6379
+    ftp:
+        image: stilliard/pure-ftpd
+        container_name: website-ftp
+        restart: always
+        networks:
+            default:
+                ipv4_address: 172.22.0.9
+        environment:
+        - PUBLICHOST=172.22.0.9
+        ports:
+        - 21:21
+        - 30000-30009:30000-30009
+networks:
+    default:
+volumes:
+    oryxtc-volume:
+        driver: local-persist
+        driver_opts:
+            mountpoint: /d/www/oryxtc    #项目总目录
