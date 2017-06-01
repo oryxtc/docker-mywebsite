@@ -8,7 +8,7 @@ services:
         - 80:80
         - 443:443
         links:
-        - php
+        - php:php_server
         volumes:
         - /d/www/docker/mywebsite/nginx:/etc/nginx/conf.d  #nginx配置文件目录
         - oryxtc-volume:/home
