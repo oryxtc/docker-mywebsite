@@ -19,6 +19,7 @@ services:
         image: oryxtc/oryxtc-php
         container_name: oryxtc-php
         restart: always
+        privileged: true
         links:
         - mysql:mysql_server
         - redis:redis_server
@@ -31,6 +32,7 @@ services:
         image: oryxtc/oryxtc-php7
         container_name: oryxtc-php7
         restart: always
+        privileged: true
         links:
         - mysql:mysql_server
         - redis:redis_server
