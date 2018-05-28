@@ -5,14 +5,13 @@ services:
         container_name: oryxtc-nginx
         restart: always
         ports:
-        - 80:80
-        - 443:443
-        links:
-        - php:php_server
-        - php7:php7_server
+            - 80:80
+            - 443:443
+        networks:
+            - frontend
         volumes:
-        - ./nginx:/etc/nginx/conf.d  #nginx配置文件目录
-        - oryxtc-volume:/home
+            - ./nginx:/etc/nginx/conf.d  #nginx配置文件目录
+            - oryxtc-volume:/home
     php:
         build:
             context: ./php
@@ -20,12 +19,16 @@ services:
         container_name: oryxtc-php
         restart: always
         privileged: true
-        links:
-        - mysql:mysql_server
-        - redis:redis_server
+        networks:
+            frontend:
+                aliases:
+                    - php_server
+            backend:
+                aliases:
+                    - php_server
         volumes:
-        - ./php/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
-        - oryxtc-volume:/home
+            - ./php/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
+            - oryxtc-volume:/home
     php7:
         build:
             context: ./php7
@@ -33,33 +36,54 @@ services:
         container_name: oryxtc-php7
         restart: always
         privileged: true
-        links:
-        - mysql:mysql_server
-        - redis:redis_server
+        environment:
+            - MYSQL_PASSWORD=123456
+        networks:
+            frontend:
+                aliases:
+                    - php7_server
+            backend:
+                aliases:
+                    - php7_server
         volumes:
-        - ./php7/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
-        - oryxtc-volume:/home
+            - ./php7/www.conf:/usr/local/etc/php-fpm.d/www.conf  #php-fpm配置文件目录
+            - ./php7/php-fpm.conf:/usr/local/etc/php-fpm.conf  #php-fpm配置文件目录
+            - ./php7/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
+            - oryxtc-volume:/home
     mysql:
-        image: mysql:5.7
+        image: mysql:5.6
         container_name: oryxtc-mysql
         restart: always
         ports:
-        - 3306:3306
-        volumes:
-        - ./secrets/mysql-root:/run/secrets/mysql-root
-        - mysql-volume:/var/lib/mysql
+            - 3306:3306
         environment:
-        - MYSQL_USER=oryxtc
-        - MYSQL_PASSWORD=123456
-        - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql-root
+            - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql-root
+        networks:
+            backend:
+                aliases:
+                    - mysql_server
+        volumes:
+            - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+            - ./secrets/mysql-root:/run/secrets/mysql-root
+            - mysql_5.6_volume:/var/lib/mysql         
     redis:
         image: redis:4.0-alpine
         container_name: oryxtc-redis
         restart: always
         ports:
-        - 6379:6379
+            - 6379:6379
+        networks:
+            backend:
+                aliases:
+                    - redis_server
+        volumes:
+            - ./redis/redis.conf:/etc/redis.conf
+        command: ["redis-server","/etc/redis.conf"]    
+networks:
+    frontend:
+    backend:
 volumes:
-    mysql-volume:
+    mysql_5.6_volume:
     oryxtc-volume:
         driver: local-persist
         driver_opts:
