@@ -2,7 +2,7 @@ version: '3'
 services:
     nginx:
         image: nginx:1.10.3
-        container_name: oryxtc-nginx
+        container_name: nginx
         restart: always
         ports:
             - 80:80
@@ -11,71 +11,56 @@ services:
             - frontend
         volumes:
             - ./nginx:/etc/nginx/conf.d  #nginx配置文件目录
-            - oryxtc-volume:/home
-    php:
+            - /d/www/oryxtc:/home
+    php5.6:
         build:
             context: ./php
-        image: oryxtc/oryxtc-php
-        container_name: oryxtc-php
+        image: oryxtc/local-php5.6
+        container_name: php5.6
         restart: always
         privileged: true
         networks:
-            frontend:
-                aliases:
-                    - php_server
-            backend:
-                aliases:
-                    - php_server
+            - frontend
+            - backend
         volumes:
-            - ./php/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
-            - oryxtc-volume:/home
+            - ./php/php.ini:/usr/local/etc/php/php.ini  #php配置文件路径
+            - /d/www/oryxtc:/home
     php7:
         build:
             context: ./php7
-        image: oryxtc/oryxtc-php7
-        container_name: oryxtc-php7
+        image: oryxtc/local-php7
+        container_name: php7
         restart: always
         privileged: true
-        environment:
-            - MYSQL_PASSWORD=123456
         networks:
-            frontend:
-                aliases:
-                    - php7_server
-            backend:
-                aliases:
-                    - php7_server
+            - frontend
+            - backend
         volumes:
-            - ./php7/www.conf:/usr/local/etc/php-fpm.d/www.conf  #php-fpm配置文件目录
-            - ./php7/php-fpm.conf:/usr/local/etc/php-fpm.conf  #php-fpm配置文件目录
-            - ./php7/php.ini:/usr/local/etc/php/php.ini  #php配置文件目录
-            - oryxtc-volume:/home
-    mysql:
+            - ./php7/www.conf:/usr/local/etc/php-fpm.d/www.conf  #php-fpm配置文件路径
+            - ./php7/local-php.ini:/usr/local/etc/php/conf.d/local-php.ini  #php配置文件路径
+            - /d/www/oryxtc:/home
+    mysql5.6:
         image: mysql:5.6
-        container_name: oryxtc-mysql
+        container_name: mysql5.6
         restart: always
         ports:
             - 3306:3306
         environment:
             - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql-root
         networks:
-            backend:
-                aliases:
-                    - mysql_server
+            - backend
         volumes:
-            - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+            - ./mysql/local.cnf:/etc/mysql/conf.d/local.cnf
             - ./secrets/mysql-root:/run/secrets/mysql-root
             - mysql_5.6_volume:/var/lib/mysql         
     redis:
         image: redis:4.0-alpine
-        container_name: oryxtc-redis
+        container_name: redis
         restart: always
         ports:
             - 6379:6379
         networks:
-            backend:
-                aliases:
-                    - redis_server
+            - backend
         volumes:
             - ./redis/redis.conf:/etc/redis.conf
         command: ["redis-server","/etc/redis.conf"]    
@@ -84,7 +69,3 @@ networks:
     backend:
 volumes:
     mysql_5.6_volume:
-    oryxtc-volume:
-        driver: local-persist
-        driver_opts:
-            mountpoint: /d/www/oryxtc
