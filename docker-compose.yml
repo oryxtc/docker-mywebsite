@@ -14,7 +14,7 @@ services:
             - /c/www/home:/home
     php5.6:
         build:
-            context: ./php
+            context: ./php5.6
         image: oryxtc/local-php5.6
         container_name: php5.6
         restart: always
