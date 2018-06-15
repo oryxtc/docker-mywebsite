@@ -1,4 +1,4 @@
-version: '3'
+﻿version: '3'
 services:
     nginx:
         image: nginx:1.10.3
@@ -11,7 +11,7 @@ services:
             - frontend
         volumes:
             - ./nginx:/etc/nginx/conf.d  #nginx配置文件目录
-            - /d/www/oryxtc:/home
+            - /c/www/home:/home
     php5.6:
         build:
             context: ./php
@@ -24,7 +24,7 @@ services:
             - backend
         volumes:
             - ./php/php.ini:/usr/local/etc/php/php.ini  #php配置文件路径
-            - /d/www/oryxtc:/home
+            - /c/www/home:/home
     php7:
         build:
             context: ./php7
@@ -38,7 +38,7 @@ services:
         volumes:
             - ./php7/www.conf:/usr/local/etc/php-fpm.d/www.conf  #php-fpm配置文件路径
             - ./php7/local-php.ini:/usr/local/etc/php/conf.d/local-php.ini  #php配置文件路径
-            - /d/www/oryxtc:/home
+            - /c/www/home:/home
     mysql5.6:
         image: mysql:5.6
         container_name: mysql5.6
