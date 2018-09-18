@@ -52,7 +52,20 @@ services:
         volumes:
             - ./mysql/local.cnf:/etc/mysql/conf.d/local.cnf
             - ./secrets/mysql-root:/run/secrets/mysql-root
-            - mysql_5.6_volume:/var/lib/mysql         
+            - mysql_5.6_volume:/var/lib/mysql
+    mongo:
+        image: mongo:4
+        container_name: mongo4
+        restart: always
+        ports:
+            - 27017:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: needtofile
+        networks:
+            - backend 
+        volumes:
+            - mongo_4_volume:/data/db           
     redis:
         image: redis:4.0-alpine
         container_name: redis
@@ -69,3 +82,4 @@ networks:
     backend:
 volumes:
     mysql_5.6_volume:
+    mongo_4_volume:

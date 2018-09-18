@@ -117,6 +117,8 @@ myisam_max_sort_file_size = 10G
 skip-name-resolve  
 #lower_case_table_names = 1  
 #server-id = 1
+
+innodb_large_prefix = ON
  
 #innodb_additional_mem_pool_size = 16M  
 #这个参数用来设置 InnoDB 存储的数据目录信息和其它内部数据结构的内存池大小，类似于Oracle的library cache。这不是一个强制参数，可以被突破。
